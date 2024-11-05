@@ -1,0 +1,62 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+dist/
+build/
+
+/uploads/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Cache files
+.cache/
+.vscode/
+*.swp
+.sass-cache/
+.nyc_output/
+coverage/
+.idea/
+.vite/
+vite.config.ts
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Compiled files
+*.tsbuildinfo
+*.eslintcache
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# npm pack files
+*.tgz
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git conflicts
+*.orig
