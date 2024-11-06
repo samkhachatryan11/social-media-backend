@@ -1,10 +1,6 @@
 const amqp = require("amqplib");
-const EventEmitter = require("events");
+const notificationEmitter = require("../emitters/notificationEmitter");
 const { createUser } = require("../service/userService");
-
-const notificationEmitter = new EventEmitter();
-
-exports.notificationEmitter = notificationEmitter;
 
 exports.userCreated = async function () {
   try {

@@ -1,8 +1,6 @@
 const User = require("../db/userSchema");
 
 exports.createUser = async function (userInfo) {
-  console.log("asdsadsadasdasd", userInfo);
-
   try {
     await User.create({
       userId: userInfo.id,

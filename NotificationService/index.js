@@ -25,7 +25,7 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", ioConnection);
+global.socket = io.on("connection", ioConnection);
 
 app.use("/api", router);
 
