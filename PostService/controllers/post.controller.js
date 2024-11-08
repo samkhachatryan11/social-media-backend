@@ -287,7 +287,6 @@ async function getUserPosts(req, res) {
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
-    res.status(500).send("Error fetching posts");
   }
 }
 
