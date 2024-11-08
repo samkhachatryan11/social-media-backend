@@ -11,7 +11,6 @@ exports.userCreated = async function () {
 
     await channel.assertExchange(exchange, "fanout", { durable: true });
     await channel.assertQueue(queue, { durable: true });
-
     await channel.bindQueue(queue, exchange, "");
 
     console.log(`Waiting for messages in queue: ${queue}`);
