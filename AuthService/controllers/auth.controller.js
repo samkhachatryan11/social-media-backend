@@ -83,6 +83,48 @@ async function login(req, res, next) {
   })(req, res, next);
 }
 
+async function googleLogin(req, res, next) {
+  passport.authenticate("google", { scope: ["email", "profile"] })(
+    req,
+    res,
+    next
+  );
+}
+
+async function googleCallback(req, res) {
+  passport.authenticate(
+    "google",
+    { failureRedirect: "/" },
+    async (err, user) => {
+      if (err) {
+        console.error("Google Auth Error: ", err);
+        return res.redirect("/");
+      }
+
+      if (!user) {
+        console.log("User not found");
+        return res.redirect("/");
+      }
+
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error("Error logging in user:", err);
+          return res.status(500).send(err);
+        }
+
+        return res
+          .cookie(process.env.COOKIE_NAME, user.email, {
+            httpOnly: process.env.COOKIE_HTTP_ONLY,
+            secure: process.env.COOKIE_SECURE,
+            sameSite: process.env.COOKIE_SAME_SITE,
+            maxAge: process.env.COOKIE_MAX_AGE,
+          })
+          .redirect(`${process.env.CORS_FRONT_END_ORIGIN}/home`);
+      });
+    }
+  )(req, res);
+}
+
 async function logout(req, res, next) {
   req.logout(function (err) {
     if (err) {
@@ -195,12 +237,10 @@ async function getUserInfo(req, res) {
 
     const user = await User.findOne({
       where: { id: req.user.id },
-      attributes: ["id", "username", "email", "avatar"],
       include: [
         {
           model: Friend,
           as: "sentRequests",
-          where: { is_accepted: true },
           include: [
             {
               model: User,
@@ -213,7 +253,6 @@ async function getUserInfo(req, res) {
         {
           model: Friend,
           as: "receivedRequests",
-          where: { is_accepted: true },
           include: [
             {
               model: User,
@@ -226,10 +265,7 @@ async function getUserInfo(req, res) {
       ],
     });
 
-    const friendsArray = [
-      ...user.sentRequests.map((friend) => friend.receiver),
-      ...user.receivedRequests.map((friend) => friend.sender),
-    ];
+    const friendsArray = [...user.sentRequests, ...user.receivedRequests];
 
     const uniqueFriends = Array.from(
       new Map(friendsArray.map((friend) => [friend.id, friend])).values()
@@ -328,6 +364,7 @@ async function searchUsers(req, res) {
       },
     },
   });
+  f;
 
   if (usernameParam === "") {
     return res.send([]);
@@ -348,4 +385,6 @@ module.exports = {
   removeProfilePicture,
   returnRandomUsers,
   searchUsers,
+  googleLogin,
+  googleCallback,
 };

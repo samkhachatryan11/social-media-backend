@@ -15,6 +15,8 @@ const {
   removeProfilePicture,
   returnRandomUsers,
   searchUsers,
+  googleLogin,
+  googleCallback,
 } = require("../controllers/auth.controller");
 
 const {
@@ -26,6 +28,8 @@ const isAuthenticated = require("../middleware/isAuthenticated");
 
 authRouter.post("/registration", registrationRequest, registration);
 authRouter.post("/login", loginRequest, login);
+authRouter.get("/google-auth", googleLogin);
+authRouter.get("/google-auth-callback", googleCallback);
 authRouter.delete("/account/delete", isAuthenticated, deleteAccount);
 authRouter.post("/logout", logout);
 authRouter.post("/account/verify-email", isAuthenticated, VerifyEmail);

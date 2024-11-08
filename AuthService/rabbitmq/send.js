@@ -1,44 +1,59 @@
 const amqp = require("amqplib");
 
-async function sendUserInfo(userInfo) {
-  const connection = await amqp.connect("amqp://localhost");
-  const channel = await connection.createChannel();
+let connection, channel;
 
-  const exchange = "user.created";
-  const msg = JSON.stringify(userInfo);
-
-  await channel.assertExchange(exchange, "fanout", { durable: true });
-
-  channel.publish(exchange, "", Buffer.from(msg));
-
-  console.log("User info sent to exchange:", msg);
-
-  await channel.close();
-  await connection.close();
-}
-
-async function sendNotificationInfo(notificationInfo, queue) {
+async function setupConnection() {
   try {
-    const connection = await amqp.connect("amqp://localhost");
-    const channel = await connection.createChannel();
+    connection = await amqp.connect("amqp://localhost");
+    channel = await connection.createChannel();
 
-    await channel.assertQueue(queue, {
+    console.log("RabbitMQ connection and channel setup completed.");
+
+    await channel.assertExchange("user.created", "fanout", { durable: true });
+    await channel.assertExchange("send.notification", "fanout", {
       durable: true,
     });
-
-    const msg = JSON.stringify(notificationInfo);
-
-    channel.sendToQueue(queue, Buffer.from(msg), { persistent: true });
-    console.log("Friend request info sent:", msg);
-
-    await channel.close();
-    await connection.close();
   } catch (error) {
-    console.error("Failed to send friend request info:", error);
+    console.error("Error setting up RabbitMQ connection:", error);
   }
 }
 
-module.exports = {
-  sendUserInfo,
-  sendNotificationInfo,
-};
+async function sendUserInfo(userInfo) {
+  try {
+    if (!connection || !channel) {
+      await setupConnection();
+    }
+
+    const exchange = "user.created";
+    const msg = JSON.stringify(userInfo);
+
+    channel.publish(exchange, "", Buffer.from(msg), { persistent: true });
+    console.log("User info sent to exchange:", msg);
+  } catch (error) {
+    console.error("Error sending user info:", error);
+  }
+}
+
+async function sendNotificationInfo(notificationInfo) {
+  try {
+    if (!connection || !channel) {
+      await setupConnection();
+    }
+
+    const exchange = "send.notification";
+    const msg = JSON.stringify(notificationInfo);
+
+    channel.publish(exchange, "", Buffer.from(msg), { persistent: true });
+    console.log("Notification info sent to exchange:", msg);
+  } catch (error) {
+    console.error("Error sending notification info:", error);
+  }
+}
+
+process.on("exit", async () => {
+  if (channel) await channel.close();
+  if (connection) await connection.close();
+  console.log("RabbitMQ channel and connection closed.");
+});
+
+module.exports = { sendUserInfo, sendNotificationInfo };

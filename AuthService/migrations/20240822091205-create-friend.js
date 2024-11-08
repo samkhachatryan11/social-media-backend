@@ -12,10 +12,12 @@ module.exports = {
       sender_id: {
         type: Sequelize.INTEGER,
         references: { model: "Users", key: "id" },
+        onDelete: "CASCADE",
       },
       receiver_id: {
         type: Sequelize.INTEGER,
         references: { model: "Users", key: "id" },
+        onDelete: "CASCADE",
       },
       is_accepted: {
         type: Sequelize.BOOLEAN,
