@@ -20,6 +20,7 @@ const googleStrategy = new GoogleStrategy(
           email: profile.emails[0].value,
           avatar: profile.photos ? profile.photos[0].value : null,
         });
+        await sendUserInfo(newUser);
         return done(null, newUser);
       }
       return done(null, user);
